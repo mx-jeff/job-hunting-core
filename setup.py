@@ -4,10 +4,10 @@ from setuptools import setup, find_packages
 # This call to setup() does all the work
 setup(
     name="job-hunting",
-    version="0.2.0",
+    version="0.2.2",
     description="Package that automate selection and subscription of jobs",
     long_description_content_type="text/markdown",
-    long_description=open('README.md').read(),
+    long_description=open('README.md', encoding="utf-8").read(),
     url="https://job-hunting.readthedocs.io/",
     author="Jeferson/MxJeff",
     author_email="mx.jeferson.10@hotmail.com",

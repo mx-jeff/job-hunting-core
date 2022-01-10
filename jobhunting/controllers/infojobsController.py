@@ -1,5 +1,4 @@
 from jobhunting.Models.Infojobs import Infojobs
-from jobhunting.utils.output import output
 import sys
 
 

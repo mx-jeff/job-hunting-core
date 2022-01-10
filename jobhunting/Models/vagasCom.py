@@ -12,7 +12,7 @@ class VagasCom:
     appName = "[Vagas.com]"
     targetLink = []
 
-    def __init__(self, chromedriver_path, headless=True):
+    def __init__(self, chromedriver_path="", headless=True):
         self.chromedriver_path = chromedriver_path
         self.headless = headless
         self.driver = setSelenium("https://www.vagas.com.br", self.chromedriver_path, headless=self.headless)
@@ -126,19 +126,19 @@ class VagasCom:
                 timer()
                 alert(driver)
                 driver.find_element_by_xpath('//*[@id="LtC"]/td[1]/table/tbody/tr/td[1]/a').click()
-                return f'{self.appName} Inscrição realizada com sucesso :) '
+                return 'Inscrição realizada com sucesso :) '
 
             except:
-                return f'{self.appName} Inscrição realizada com sucesso :) '
+                return 'Inscrição realizada com sucesso :) '
                 driver.back()
             
         except NoSuchElementException:
-            return f'{self.appName} Inscrição realizada anteriormente ;) '
+            return f'Inscrição realizada anteriormente ;) '
 
         except Exception as error: 
-            return f'{self.appName} Erro na inscrição :( \nError: {error}'
+            return f'Erro na inscrição :( \nError: {error}'
 
-        # output(f'{self.appName} Feito!')
+        # output(f'Feito!')
 
     def quitSearch(self):
         # output(f'{self.appName} Saindo... volte sempre :)')

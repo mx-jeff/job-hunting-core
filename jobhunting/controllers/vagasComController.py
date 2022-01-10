@@ -10,7 +10,7 @@ def searchVagasCom(targetJob, vagasUser, vagasPassword, headless):
     try:
         print(f'{job_site} Tentando logar...')
         if not vagas.login(vagasUser, vagasPassword):
-            print(f'{targetJob} Login inválido ou campos errados!')
+            print(f'{job_site} Login inválido ou campos errados!')
             vagas.quitSearch()
             return 
 
