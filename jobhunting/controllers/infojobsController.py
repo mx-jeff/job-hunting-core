@@ -25,11 +25,11 @@ def searchInfojob(jobTarget, user, password, headless):
 
         print(f'{site_job} Selecionando vaga...')
         jobs.searchList(job_type)
-        print(f'{site_job} Feito!, buscando vagas para {site_job}')
+        print(f'{site_job} Feito!, buscando vagas para {job_type}')
 
-        print(f'{site_job} Ajustando opções...')
-        jobs.searchOptions()
-        print(f"{site_job} Feito!")
+        # print(f'{site_job} Ajustando opções...')
+        # jobs.searchOptions()
+        # print(f"{site_job} Feito!")
 
         print(f'{site_job} Selecionando vagas disponiveis...')
         jobs.getJob()
@@ -59,6 +59,7 @@ def searchInfojob(jobTarget, user, password, headless):
         jobs.quitSearch()
         print("Algum problema ocorreu e/ou as inforamções estão erradas!")
         print(f"Erro {error}, contate o adminstrador do sistema")
+    
 
     except KeyboardInterrupt:
         print('Saindo, volte sempre!')

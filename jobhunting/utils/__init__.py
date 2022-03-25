@@ -18,3 +18,6 @@ def timer(secs=5):
 def alert(browser):
     alert = browser.switch_to.alert
     alert.accept()    
+
+def remove_duplicates_from_list(x:list):
+    return list(dict.fromkeys(x))

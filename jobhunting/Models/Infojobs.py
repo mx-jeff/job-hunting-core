@@ -1,11 +1,9 @@
-from selenium import webdriver
-import selenium
+from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from time import sleep
 from jobhunting.config import setSelenium
 from jobhunting.credentails import user, password
-# from jobhunting.utils.output import output
-import sys
+from jobhunting.utils import remove_duplicates_from_list
 
 
 class Infojobs:
@@ -16,7 +14,6 @@ class Infojobs:
         self.chromedriver_path = chromedriver_path
         self.headless = headless
         self.driver = setSelenium('http://www.infojobs.com.br', self.chromedriver_path, headless=self.headless)
-        # output(f'{self.appName} Iniciando...')
 
     def login(self, login, user_password):
         """
@@ -26,20 +23,15 @@ class Infojobs:
         # output(f'{self.appName} Tentando logar...')        
         
         try:
-            self.loginForm = self.driver.find_element_by_xpath('//*[@id="ctl00_cAccess_aLogin"]')
-            self.loginForm.click()
+            self.driver.get('https://login.infojobs.com.br/Account/Login')
         
         except:
-            try:
-                # output(f"{self.appName} Passando verificação de cookies")
-                self.clearCookie()
-                sleep(5)
-                self.loginForm = self.driver.find_element_by_xpath('//*[@id="ctl00_cAccess_aLogin"]')
-                self.loginForm.click()
+            # output(f"{self.appName} Passando verificação de cookies")
+            self.clearCookie()
+            sleep(5)
+            self.loginForm = self.driver.find_element_by_xpath('//*[@id="ctl00_cAccess_aLogin"]')
+            self.loginForm.click()
 
-            except Exception as error:
-                # output(f'[ERRO] {error}, contate o administrador')
-                self.quitSearch()
 
         current_url = self.driver.current_url
         self.inputForm = self.driver.find_element_by_xpath('//*[@id="Username"]')
@@ -48,19 +40,26 @@ class Infojobs:
         self.passwordForm = self.driver.find_element_by_xpath('//*[@id="Password"]')
         self.passwordForm.send_keys(user_password or password)
 
-        self.submitButton = self.driver.find_element_by_xpath('/html/body/div/div/div/div/div[1]/div[3]/form/button')
-        self.submitButton.click()
-        sleep(3)
+        try:
+            self.submitButton = self.driver.find_element_by_css_selector('[value="login"]')
+            self.submitButton.click()
+
+        except ElementNotInteractableException:
+            print(f'{self.appName} limpando popup')
+            self.clear_popup()
+            print(f'{self.appName} popup limpo!')
+            self.submitButton = self.driver.find_element_by_css_selector('[value="login"]')
+            self.submitButton.click()
+
+        else:
+            sleep(5)
         
         if self.driver.current_url == current_url:
-            # print(f'{self.appName} Login inválido ou campos errados!')
             self.quitSearch()
-            # sys.exit()
             return False
             # check if this message was sent
 
         return True
-        # output(f'{self.appName} Logado com sucesso')
 
     def searchList(self, jobType):
         """
@@ -80,7 +79,6 @@ class Infojobs:
 
         self.searchJob.send_keys(str(jobType))
         self.searchJob.send_keys(Keys.ENTER)
-        # output(f'{self.appName} Feito!, buscando vagas para {jobType}')
 
     def searchOptions(self):
         """
@@ -103,7 +101,6 @@ class Infojobs:
                 '//*[@id="ctl00_phMasterPage_cFacetContractWorkType_rptFacet_ctl01_chkItem"]').click()
 
         sleep(10)
-        # output(f"{self.appName} Feito!")
 
     def getJob(self):
         """
@@ -111,31 +108,45 @@ class Infojobs:
         :return: none
         """
         # output(f'{self.appName} Selecionando vagas disponiveis...')
-        try:
-            while True:
-                sleep(5)
+
+        job_offer = []
+
+        for _ in range(0, 21):
+            try:
+                self.driver.implicitly_wait(30)
                 
                 #jobs container
-                self.jobsContainer = self.driver.find_element_by_xpath('//*[@id="ctl00_phMasterPage_resultsGrid"]')
-                # get links
-                self.links = self.jobsContainer.find_elements_by_tag_name('a')
-                for link in self.links:
-                    #append to array
-                    self.jobsLink.append(link.get_attribute('href').replace(',', ''))
-
-                #click to links
-                ### ATENTION ###
-                # use in controller call instead of inner function
-                # for target in self.jobsLink:
-                #     self.subscribeJob(target)
+                self.jobsContainer = self.driver.find_element_by_id('filterSideBar')
                 
+                # get links
+                for items in self.jobsContainer.find_elements_by_tag_name('div'):
+                    try:
+                        self.driver.implicitly_wait(0)
+                        job_link = items.find_element_by_css_selector('a.text-decoration-none').get_attribute('href')
 
-                self.driver.find_element_by_xpath('//*[@id="ctl00_phMasterPage_cGrid_Paginator1_lnkNext"]').click()
+                    except NoSuchElementException:
+                        continue
 
-        except Exception as error:
-            # output(error)
-            pass          
+                    else:
+                        self.driver.implicitly_wait(30)
+                    
+                    job_offer.append(job_link)
 
+                self.driver.find_element_by_css_selector('[title="Próxima"]').click()
+
+            except Exception as error:
+                # output(error)
+                break        
+
+        job_offer = remove_duplicates_from_list(job_offer)
+
+        # print(job_offer)
+        if len(job_offer) == 0:
+            print(f'{self.appName} Erro ao pegar vagas!')
+            return
+
+        self.jobsLink = [link for link in job_offer]
+            
     def subscribeJob(self, link):
         #get driver
         driver = self.driver
@@ -144,11 +155,11 @@ class Infojobs:
         sleep(5)
         try:
             # click in link of jobs
-            driver.find_element_by_xpath('//*[@id="ctl00_phMasterPage_cHeader_lnkCandidatar"]').click()
+            driver.find_element_by_xpath('//*[@id="VacancyHeader"]/div[2]/div[1]/a').click()
             sleep(5)
             # subscribe or not?
             # output(f'{self.appName} Vaga cadastrada!')
-
+            # print(driver.find_element_by_id('ctl00_phMasterPage_divAlert').text)
             return "Vaga cadastrada!"
 
             # back to jobs container - depreciated
@@ -164,6 +175,9 @@ class Infojobs:
             self.driver.find_element_by_id('AllowCookiesButton').click()
         except Exception:
             self.driver.find_element_by_id('didomi-notice-agree-button').click()
+
+    def clear_popup(self):
+        self.driver.find_element_by_id('didomi-notice-agree-button').click()
 
     def quitSearch(self):
         # output(f'{self.appName} Saindo... volte sempre :)')
