@@ -12,8 +12,8 @@ if not sys.warnoptions:
 
 
 def main():
-    # searchVagasCom('robot', vagasUser, vagasPassword, headless=True)
-    searchInfojob('python', user, password, headless=True)
+    searchVagasCom('robot', vagasUser, vagasPassword, headless=False)
+    # searchInfojob('python', user, password, headless=True)
         
 
 if __name__ == "__main__":

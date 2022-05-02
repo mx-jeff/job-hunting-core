@@ -25,7 +25,7 @@ class VagasCom:
             # output(f'{self.appName} Tentando logar...')
 
             # Click on login page
-            driver.find_element_by_xpath('//*[@id="loginCandidatoDesktop"]').click()
+            driver.find_element_by_id('main-navigation__signin').click()
             timer()
 
             # insert credentials and login-in
@@ -59,8 +59,14 @@ class VagasCom:
             driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
             timer()
         except ElementClickInterceptedException:
-            driver.find_element_by_css_selector('button.sc-AxhCb.jnEIVw').click()
+            # driver.implicitly_wait(0)
+            from time import sleep
+            sleep(5)
+            driver.find_element_by_xpath('//*[@id="root"]/div/div/div[5]/div[2]').click()
             self.insertJob(job)
+        
+        else:
+            driver.implicitly_wait(220)
 
         # output(f'{self.appName} Vaga selecionada!')
 

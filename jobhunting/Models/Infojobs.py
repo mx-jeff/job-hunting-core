@@ -1,4 +1,4 @@
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException,  ElementNotInteractableException
 from selenium.webdriver.common.keys import Keys
 from time import sleep
 from jobhunting.config import setSelenium
@@ -44,7 +44,7 @@ class Infojobs:
             self.submitButton = self.driver.find_element_by_css_selector('[value="login"]')
             self.submitButton.click()
 
-        except ElementClickInterceptedException:
+        except (ElementClickInterceptedException, ElementNotInteractableException):
             print(f'{self.appName} limpando popup')
             self.clear_popup()
             print(f'{self.appName} popup limpo!')
