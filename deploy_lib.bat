@@ -1,1 +1,1 @@
-.\venv\scripts\activate && python setup.py sdist bdist_wheel && twine check dist/* && twine upload dist/*
+.\venv\scripts\activate && python setup.py sdist bdist_wheel && twine check dist/* && twine upload dist/* && rm -rf build dist job_hunting.egg-info

@@ -1,11 +1,14 @@
+import logging
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, InvalidSessionIdException
 from jobhunting.utils import timer, alert
 
 from jobhunting.config import setSelenium
 from jobhunting.credentails import vagasUser, vagasPassword
 # from jobhunting.utils.output import output
+import urllib3
+from time import sleep
 
 
 class VagasCom:
@@ -16,13 +19,13 @@ class VagasCom:
         self.chromedriver_path = chromedriver_path
         self.headless = headless
         self.driver = setSelenium("https://www.vagas.com.br", self.chromedriver_path, headless=self.headless)
-        # output(f'{self.appName} Iniciando...')
+        logging.info(f'{self.appName} Iniciando...')
 
     def login(self, login, password):
         driver = self.driver
         
         try:
-            # output(f'{self.appName} Tentando logar...')
+            logging.info(f'{self.appName} Tentando logar...')
 
             # Click on login page
             driver.find_element_by_id('main-navigation__signin').click()
@@ -35,32 +38,37 @@ class VagasCom:
             driver.find_element_by_xpath('//*[@id="submitLogin"]').click()
             timer()
             if self.driver.current_url == login_url:
-                # print(f'{self.appName} Login inválido ou campos errados!')
+                logging.info(f'{self.appName} Login inválido ou campos errados!')
                 # check if this message was sent
                 self.quitSearch()
                 return False
 
         except Exception as error:
-            # output(f"{self.appName} Error: {error}")
+            logging.info(f"{self.appName} Error: {error}")
             self.quitSearch()
             return
 
-        # output(f'{self.appName} Logado com sucesso')
+        logging.info(f'{self.appName} Logado com sucesso')
         timer()
         return True
 
     def insertJob(self, job):
         driver = self.driver
 
-        # output(f'{self.appName} A selecionar vaga...')
+        logging.info(f'{self.appName} A selecionar vaga...')
         # Insert a select job type and click it!
         try:
-            inputJob = driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[1]/input').send_keys(job)
-            driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
-            timer()
+            driver.implicitly_wait(220)
+            driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[1]/input').send_keys(job)
+            try:
+                timer()
+                driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
+            
+            except urllib3.exceptions.ProtocolError:
+                timer()
+                driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
+
         except ElementClickInterceptedException:
-            # driver.implicitly_wait(0)
-            from time import sleep
             sleep(5)
             driver.find_element_by_xpath('//*[@id="root"]/div/div/div[5]/div[2]').click()
             self.insertJob(job)
@@ -68,41 +76,66 @@ class VagasCom:
         else:
             driver.implicitly_wait(220)
 
-        # output(f'{self.appName} Vaga selecionada!')
+        logging.info(f'{self.appName} Vaga selecionada!')
 
     def searchOptions(self):
         # filter jobs-options
-        # output(f'{self.appName} A ajustar opções...')
-        driver = self.driver
-        timer()
-
+        logging.info(f'{self.appName} A ajustar opções...')
         try:
-            # get container of location links
-            cityContainer = driver.find_element_by_xpath('//*[@id="pesquisaFiltros"]/div[2]/div[1]/ul')
+            driver = self.driver
+            timer()
+
+            try:
+                # get container of location links
+                
+                driver.implicitly_wait(0)
+                logging.info(f'{self.appName} Ajustando para São paulo...')
+                filterSp = driver.find_elements_by_partial_link_text('São Paulo')[0]
+                if filterSp:
+                    logging.info(f'{self.appName} São paulo achadado')
+                    driver.execute_script("arguments[0].click();", filterSp)
             
-            filterSp = cityContainer.find_elements_by_partial_link_text('São Paulo')[0]
-            driver.execute_script("arguments[0].click();", filterSp)
+            except IndexError:
+                logging.info(f'{self.appName} Erro aconteceu com a localidade...')
+                pass
         
-        except IndexError:
-            print(f'{self.appName} Erro aconteceu com a localidade...')
-            pass
+            
+            driver.implicitly_wait(220)
+            logging.info(f'{self.appName} Ajustado com sucesso!')
+            
+            timer()
+            try:
+                driver.implicitly_wait(0)
+                logging.info(f'{self.appName} Ajustando para Júnior/Trainee...')
+                filterJunior = driver.find_elements_by_partial_link_text('Júnior/Trainee')[0]
+                if filterJunior:
+                    logging.info(f'{self.appName} Júnior/Trainee achadado')
+                    driver.execute_script("arguments[0].click();", filterJunior)
+
+            except IndexError:
+                logging.info(f"{self.appName} Não há vagas para junior :(")
+                pass
+            
+            timer()
         
-        timer()
-        try:
-            filterJunior = driver.find_elements_by_partial_link_text('Júnior/Trainee')[0]
-            driver.execute_script("arguments[0].click();", filterJunior)
-
-        except IndexError:
-            # output(f"{self.appName} Não há vagas para junior :(")
+        except Exception as e:
+            logging.error(e)
             pass
-
-        # output(f'{self.appName} Feito!')
+        logging.info(f'{self.appName} Feito!')
 
     def selectJobs(self):
         # output(f'{self.appName} Listando Vagas...')
         driver = self.driver
 
-        container = driver.find_element_by_id('pesquisaResultado')
+        try:
+            container = driver.find_element_by_id('pesquisaResultado')
+        
+        except InvalidSessionIdException:
+            logging.info(f'{self.appName} Sessão invalida! Reiniciando...')
+            self.driver.refresh()
+            driver.implicitly_wait(220)
+            container = driver.find_element_by_id('pesquisaResultado')
+        
         #return container.get_attribute('outerHTML')
 
         links = container.find_elements_by_tag_name('a')
@@ -144,8 +177,6 @@ class VagasCom:
         except Exception as error: 
             return f'Erro na inscrição :( \nError: {error}'
 
-        # output(f'Feito!')
-
     def quitSearch(self):
-        # output(f'{self.appName} Saindo... volte sempre :)')
+        logging.info(f'{self.appName} Saindo... volte sempre :)')
         self.driver.quit()
