@@ -60,13 +60,8 @@ class VagasCom:
         try:
             driver.implicitly_wait(220)
             driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[1]/input').send_keys(job)
-            try:
-                timer()
-                driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
             
-            except urllib3.exceptions.ProtocolError:
-                timer()
-                driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
+            driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
 
         except ElementClickInterceptedException:
             sleep(5)
@@ -127,15 +122,7 @@ class VagasCom:
         # output(f'{self.appName} Listando Vagas...')
         driver = self.driver
 
-        try:
-            container = driver.find_element_by_id('pesquisaResultado')
-        
-        except InvalidSessionIdException:
-            logging.info(f'{self.appName} Sessão invalida! Reiniciando...')
-            self.driver.refresh()
-            driver.implicitly_wait(220)
-            container = driver.find_element_by_id('pesquisaResultado')
-        
+        container = driver.find_element_by_id('pesquisaResultado')
         #return container.get_attribute('outerHTML')
 
         links = container.find_elements_by_tag_name('a')
