@@ -12,7 +12,7 @@ if not sys.warnoptions:
 
 
 def main():
-    searchVagasCom('robot', vagasUser, vagasPassword, headless=False)
+    searchVagasCom('robot', vagasUser, vagasPassword, headless=True)
     # searchInfojob('python', user, password, headless=True)
         
 

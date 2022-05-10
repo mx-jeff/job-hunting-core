@@ -3,11 +3,9 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, InvalidSessionIdException
 from jobhunting.utils import timer, alert
-
+from jobhunting.utils.sanitize_input import sanitize_input
 from jobhunting.config import setSelenium
 from jobhunting.credentails import vagasUser, vagasPassword
-# from jobhunting.utils.output import output
-import urllib3
 from time import sleep
 
 
@@ -15,10 +13,11 @@ class VagasCom:
     appName = "[Vagas.com]"
     targetLink = []
 
-    def __init__(self, chromedriver_path="", headless=True):
+    def __init__(self, chromedriver_path="", headless=False):
         self.chromedriver_path = chromedriver_path
         self.headless = headless
         self.driver = setSelenium("https://www.vagas.com.br", self.chromedriver_path, headless=self.headless)
+        # self.driver.maximize_window()
         logging.info(f'{self.appName} Iniciando...')
 
     def login(self, login, password):
@@ -28,7 +27,7 @@ class VagasCom:
             logging.info(f'{self.appName} Tentando logar...')
 
             # Click on login page
-            driver.find_element_by_id('main-navigation__signin').click()
+            driver.get('https://www.vagas.com.br/login-candidatos')
             timer()
 
             # insert credentials and login-in
@@ -52,24 +51,18 @@ class VagasCom:
         timer()
         return True
 
-    def insertJob(self, job):
+    def insertJob(self, job, city="sao-paulo"):
         driver = self.driver
+        job = sanitize_input(job)
+        # city = sanitize_input(city)
 
         logging.info(f'{self.appName} A selecionar vaga...')
         # Insert a select job type and click it!
-        try:
-            driver.implicitly_wait(220)
-            driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[1]/input').send_keys(job)
-            
-            driver.find_element_by_xpath('//*[@id="root"]/div/header/div[1]/div[3]/div/section/div[1]/div[3]/button').click()
-
-        except ElementClickInterceptedException:
-            sleep(5)
-            driver.find_element_by_xpath('//*[@id="root"]/div/div/div[5]/div[2]').click()
-            self.insertJob(job)
-        
-        else:
-            driver.implicitly_wait(220)
+        # driver.implicitly_wait(220)
+        # print(f'https://www.vagas.com.br/vagas-de-{job}-em-{city}')
+        # driver.save_screenshot('vagas_before.png')
+        driver.get(f'https://www.vagas.com.br/vagas-de-{job}-em-{city}')
+        # driver.save_screenshot('vagas_after.png')
 
         logging.info(f'{self.appName} Vaga selecionada!')
 
@@ -121,16 +114,26 @@ class VagasCom:
     def selectJobs(self):
         # output(f'{self.appName} Listando Vagas...')
         driver = self.driver
+        # driver.save_screenshot('vagas.png')
+        driver.implicitly_wait(220)
+        try:
+            driver.implicitly_wait(0)
+            container = driver.find_element_by_id('pesquisaResultado')
 
-        container = driver.find_element_by_id('pesquisaResultado')
-        #return container.get_attribute('outerHTML')
+            links = container.find_elements_by_tag_name('a')
 
-        links = container.find_elements_by_tag_name('a')
-
-        # save all links 
-        self.targetLink = [link.get_attribute('href') for link in links]
+            # save all links 
+            self.targetLink = [link.get_attribute('href') for link in links]
+            
+            # output(f'{self.appName} Feito!')
         
-        # output(f'{self.appName} Feito!')
+        except Exception:
+            driver.quitSearch()
+            raise
+
+        else:
+            driver.implicitly_wait(220)
+
         return True
 
     @staticmethod
@@ -156,7 +159,6 @@ class VagasCom:
 
             except:
                 return 'Inscrição realizada com sucesso :) '
-                driver.back()
             
         except NoSuchElementException:
             return f'Inscrição realizada anteriormente ;) '
@@ -167,3 +169,4 @@ class VagasCom:
     def quitSearch(self):
         logging.info(f'{self.appName} Saindo... volte sempre :)')
         self.driver.quit()
+        

@@ -17,15 +17,17 @@ def setSelenium(link, chromedrover_path, headless):
     options = Options()
     options.binary_location = environ.get('GOOGLE_CHROME_BIN')
     options.add_argument('--disable-notifications')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
     options.add_argument("--disable-logging")
 
     # headles chrome, turn False to display screen
     if headless:
         options.add_argument('--headless')
+        options.add_argument('--window-size=1920x1080')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--no-sandbox')
 
-    options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36')
+    options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36')
     options.add_argument("--disable-blink-features")
     options.add_argument('--disable-blink-features=AutomationControlled')
     options.add_experimental_option("excludeSwitches", ["enable-automation"])

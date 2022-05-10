@@ -3,7 +3,7 @@ from jobhunting.Models.vagasCom import VagasCom
 
 def searchVagasCom(targetJob, vagasUser, vagasPassword, headless):
     vagas = VagasCom(chromedriver_path="C:\Selenium\chromedriver.exe", headless=headless)
-    targetJob = "bots"
+    targetJob = "python"
     job_site = vagas.appName
     
     print(f'{job_site} Iniciando...')
@@ -20,9 +20,9 @@ def searchVagasCom(targetJob, vagasUser, vagasPassword, headless):
         vagas.insertJob(targetJob)
         print(f'{job_site} Vaga selecionada!')
 
-        print(f'{job_site} A ajustar opções...')
-        vagas.searchOptions()
-        print(f'{job_site} Feito!')
+        # print(f'{job_site} A ajustar opções...')
+        # vagas.searchOptions()
+        # print(f'{job_site} Feito!')
 
         print(f'{job_site} Listando Vagas...')
         vagas.selectJobs()
@@ -56,7 +56,7 @@ def searchVagasCom(targetJob, vagasUser, vagasPassword, headless):
 
     except Exception as error:
         print("Algum problema ocorreu e/ou as informações estão erradas!")
-        # vagas.quitSearch()
+        vagas.quitSearch()
         raise
 
     except KeyboardInterrupt:
