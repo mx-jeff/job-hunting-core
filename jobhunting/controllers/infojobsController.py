@@ -1,8 +1,9 @@
-from jobhunting.Models.Infojobs import Infojobs
 import sys
+from jobhunting.Models.Infojobs import Infojobs
+from scrapper_boilerplate import setSelenium
 
 
-def searchInfojob(jobTarget, user, password, headless):
+def searchInfojob(jobTarget, user, password, driver):
     """
     Infojobs automatic subscription job
 
@@ -10,7 +11,7 @@ def searchInfojob(jobTarget, user, password, headless):
     :login: infojobs user to login
     :password: password to login
     """
-    jobs = Infojobs(chromedriver_path="C:\Selenium\chromedriver.exe", headless=headless)
+    jobs = Infojobs(driver)
     site_job = jobs.appName
     job_type = jobTarget
 
@@ -27,10 +28,6 @@ def searchInfojob(jobTarget, user, password, headless):
         jobs.searchList(job_type)
         print(f'{site_job} Feito!, buscando vagas para {job_type}')
 
-        # print(f'{site_job} Ajustando opções...')
-        # jobs.searchOptions()
-        # print(f"{site_job} Feito!")
-
         print(f'{site_job} Selecionando vagas disponiveis...')
         jobs.getJob()
         print(f'{site_job} {len(jobs.jobsLink)} Vagas selecionadas!')
@@ -42,24 +39,20 @@ def searchInfojob(jobTarget, user, password, headless):
         for index, target in enumerate(jobs.jobsLink):
             if target.startswith("https://") or target.startswith("http://"):
                 status = jobs.subscribeJob(target)
-                if status == "Vaga cadastrada!":
+                if status:
+                    print(f'{jobs.appName} Vaga inscrita com sucesso!')
                     success += 1
-
                 else:
+                    print(f'{jobs.appName} Erro de inscrição!')
                     fail += 1
-
-                print(f"{site_job} {index + 1} vaga, status: {status}")
-
-        jobs.quitSearch()
-
-        print(f'Vagas inscritas {success}')
-        print(f'Vagas ja inscritas anteriomente ou requer preenchimento adicional: {fail}')
+        
+        print(f'{jobs.appName} Vagas inscritas com sucesso: {success}')
+        print(f'{jobs.appName} Vagas com erro de inscrição: {fail}')
 
     except Exception as error:
         jobs.quitSearch()
-        print("Algum problema ocorreu e/ou as inforamções estão erradas!")
-        print(f"Erro {error}, contate o adminstrador do sistema")
-    
+        print(f"{jobs.appName} Algum problema ocorreu e/ou as inforamções estão erradas!")
+        print(f"{jobs.appName} Erro {error}, contate o adminstrador do sistema")    
 
     except KeyboardInterrupt:
         print('Saindo, volte sempre!')

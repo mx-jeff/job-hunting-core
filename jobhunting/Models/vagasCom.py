@@ -1,23 +1,24 @@
+from time import sleep
 import logging
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, InvalidSessionIdException
+
 from jobhunting.utils import timer, alert
 from jobhunting.utils.sanitize_input import sanitize_input
 from jobhunting.config import setSelenium
 from jobhunting.credentails import vagasUser, vagasPassword
-from time import sleep
 
 
 class VagasCom:
     appName = "[Vagas.com]"
     targetLink = []
 
-    def __init__(self, chromedriver_path="", headless=False):
-        self.chromedriver_path = chromedriver_path
-        self.headless = headless
-        self.driver = setSelenium("https://www.vagas.com.br", self.chromedriver_path, headless=self.headless)
-        # self.driver.maximize_window()
+    def __init__(self, driver):
+        self.driver = driver
+        # self.driver.setWindowSize(1920, 1080)
         logging.info(f'{self.appName} Iniciando...')
 
     def login(self, login, password):
@@ -32,9 +33,9 @@ class VagasCom:
 
             # insert credentials and login-in
             login_url = driver.current_url
-            driver.find_element_by_xpath('//*[@id="login_candidatos_form_usuario"]').send_keys(login or vagasUser)
-            driver.find_element_by_xpath('//*[@id="login_candidatos_form_senha"]').send_keys(password or vagasPassword)
-            driver.find_element_by_xpath('//*[@id="submitLogin"]').click()
+            driver.find_element(By.ID, 'login_candidatos_form_usuario').send_keys(login or vagasUser)
+            driver.find_element(By.ID, 'login_candidatos_form_senha').send_keys(password or vagasPassword)
+            driver.find_element(By.ID, 'submitLogin').click()
             timer()
             if self.driver.current_url == login_url:
                 logging.info(f'{self.appName} Login inválido ou campos errados!')
@@ -65,6 +66,7 @@ class VagasCom:
         # driver.save_screenshot('vagas_after.png')
 
         logging.info(f'{self.appName} Vaga selecionada!')
+        return True
 
     def searchOptions(self):
         # filter jobs-options
