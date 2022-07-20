@@ -1,63 +1,49 @@
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException,  ElementNotInteractableException
-from selenium.webdriver.common.keys import Keys
+from cmath import log
+import logging
 from time import sleep
-from jobhunting.config import setSelenium
+
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException,  ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from jobhunting.credentails import user, password
 from jobhunting.utils import remove_duplicates_from_list
+from jobhunting.utils.sanitize import getStatusJob
+from scrapper_boilerplate import explicit_wait
 
 
 class Infojobs:
     appName = '[Infojobs]'
     jobsLink = []
 
-    def __init__(self, chromedriver_path="", headless=True):
-        self.chromedriver_path = chromedriver_path
-        self.headless = headless
-        self.driver = setSelenium('http://www.infojobs.com.br', self.chromedriver_path, headless=self.headless)
+    def __init__(self, driver):
+        self.driver = driver
 
     def login(self, login, user_password):
         """
         Login to Infojobs, with credentials
         :return: None
         """
-        # output(f'{self.appName} Tentando logar...')        
-        
-        try:
-            self.driver.get('https://login.infojobs.com.br/Account/Login')
-        
-        except:
-            # output(f"{self.appName} Passando verificação de cookies")
-            self.clearCookie()
-            sleep(5)
-            self.loginForm = self.driver.find_element_by_xpath('//*[@id="ctl00_cAccess_aLogin"]')
-            self.loginForm.click()
+        login_url = 'https://login.infojobs.com.br/Account/Login'
+        logging.info(f'{self.appName} Tentando logar...')        
+        self.driver.get(login_url)
 
+        explicit_wait(self.driver, By.TAG_NAME, 'body')
+        if self.driver.current_url != login_url:
+            logging.info(f'{self.appName} Já está logado!')
+            return
 
-        current_url = self.driver.current_url
-        self.inputForm = self.driver.find_element_by_xpath('//*[@id="Username"]')
+        logging.info(f"{self.appName} Passando verificação de cookies")
+        explicit_wait(self.driver, By.TAG_NAME, 'body')
+        self.clearCookie()
+
+        self.inputForm = self.driver.find_element(By.XPATH, '//*[@id="Username"]')
         self.inputForm.send_keys(login or user)
 
-        self.passwordForm = self.driver.find_element_by_xpath('//*[@id="Password"]')
+        self.passwordForm = self.driver.find_element(By.XPATH, '//*[@id="Password"]')
         self.passwordForm.send_keys(user_password or password)
 
-        try:
-            self.submitButton = self.driver.find_element_by_css_selector('[value="login"]')
-            self.submitButton.click()
-
-        except (ElementClickInterceptedException, ElementNotInteractableException):
-            print(f'{self.appName} limpando popup')
-            self.clear_popup()
-            print(f'{self.appName} popup limpo!')
-            self.submitButton = self.driver.find_element_by_css_selector('[value="login"]')
-            self.submitButton.click()
-
-        else:
-            sleep(5)
-        
-        if self.driver.current_url == current_url:
-            self.quitSearch()
-            return False
-            # check if this message was sent
+        self.submitButton = self.driver.find_element(By.CSS_SELECTOR, '[value="login"]')
+        self.submitButton.click()
 
         return True
 
@@ -67,37 +53,38 @@ class Infojobs:
         :param jobType: Type of job - String
         :return: None
         """
-        # output(f'{self.appName} Selecionando vaga...')
+        logging.info(f'{self.appName} Selecionando vaga...')
         try:
-            self.searchJob = self.driver.find_element_by_name('Palabra')
+            self.searchJob = self.driver.find_element(By.NAME, 'Palabra')
         except:
             try:
-                self.searchJob.find_element_by_name('Palabra')
+                self.searchJob.find_element(By.NAME, 'Palabra')
 
             except:
-                raise
+                return
 
         self.searchJob.send_keys(str(jobType))
         self.searchJob.send_keys(Keys.ENTER)
+        return True
 
     def searchOptions(self):
         """
         Select the options to customize job options
         :return: None
         """
-        # output(f'{self.appName} Ajustando opções...')
+        logging.info(f'{self.appName} Ajustando opções...')
         try:
             # Select to São Paulo
-            self.cityOptionSaoPaulo = self.driver.find_element_by_xpath(
+            self.cityOptionSaoPaulo = self.driver.find_element(By.XPATH, 
                 '//*[@id="ctl00_phMasterPage_cFacetLocation3_rptFacet_ctl01_chkItem"]').click()
             # Select CLT
-            self.cltOption = self.driver.find_element_by_xpath(
+            self.cltOption = self.driver.find_element(By.XPATH, 
                 '//*[@id="ctl00_phMasterPage_cFacetContractWorkType_rptFacet_ctl01_chkItem"]').click()
 
         except:
             sleep(10)
             #if falls, try to click again
-            self.cltOption = self.driver.find_element_by_xpath(
+            self.cltOption = self.driver.find_element(By.XPATH, 
                 '//*[@id="ctl00_phMasterPage_cFacetContractWorkType_rptFacet_ctl01_chkItem"]').click()
 
         sleep(10)
@@ -107,32 +94,26 @@ class Infojobs:
         Get links from container of jobs to array and clicks one-by-one
         :return: none
         """
-        # output(f'{self.appName} Selecionando vagas disponiveis...')
+        logging.debug(f'{self.appName} Selecionando vagas disponiveis...')
 
         job_offer = []
 
         for _ in range(0, 21):
             try:
-                self.driver.implicitly_wait(30)
-                
                 #jobs container
-                self.jobsContainer = self.driver.find_element_by_id('filterSideBar')
+                self.jobsContainer = explicit_wait(self.driver, By.ID, "filterSideBar") # self.driver.find_element(By.ID, 'filterSideBar')
                 
                 # get links
-                for items in self.jobsContainer.find_elements_by_tag_name('div'):
+                for items in self.jobsContainer.find_elements(By.TAG_NAME, 'div'):
                     try:
-                        self.driver.implicitly_wait(0)
-                        job_link = items.find_element_by_css_selector('a.text-decoration-none').get_attribute('href')
+                        job_link = items.find_element(By.CSS_SELECTOR, 'a.text-decoration-none').get_attribute('href')
 
                     except NoSuchElementException:
                         continue
-
-                    else:
-                        self.driver.implicitly_wait(30)
                     
                     job_offer.append(job_link)
 
-                self.driver.find_element_by_css_selector('[title="Próxima"]').click()
+                self.driver.find_element(By.CSS_SELECTOR, '[title="Próxima"]').click()
 
             except Exception as error:
                 # output(error)
@@ -140,45 +121,67 @@ class Infojobs:
 
         job_offer = remove_duplicates_from_list(job_offer)
 
-        # print(job_offer)
         if len(job_offer) == 0:
             print(f'{self.appName} Erro ao pegar vagas!')
             return
 
         self.jobsLink = [link for link in job_offer]
-            
-    def subscribeJob(self, link):
-        #get driver
-        driver = self.driver
 
+    def subscribe(self, driver):
+        """
+        Subscribe to job
+        
+        :param driver: Driver of browser"""
+
+        subscribe = explicit_wait(driver , By.CSS_SELECTOR, '.btn.btn-primary.btn-block.js_btApplyVacancy')
+        subscribe.click()
+        # subscribe or not?
+        status = getStatusJob(self.driver.current_url)
+        
+        if status == 0:
+            logging.info(f'{self.appName} Vaga inscrita com sucesso!')
+            return True
+        else:
+            logging.info(f'{self.appName} Erro de cadastro!')
+            return
+
+    def subscribeJob(self, link):
+
+        #get driver
+        status = False
+        driver = self.driver
         driver.get(link)
-        sleep(5)
+        explicit_wait(driver, By.TAG_NAME, 'body')
+        
         try:
             # click in link of jobs
-            driver.find_element_by_xpath('//*[@id="VacancyHeader"]/div[2]/div[1]/a').click()
-            sleep(5)
-            # subscribe or not?
-            # output(f'{self.appName} Vaga cadastrada!')
-            # print(driver.find_element_by_id('ctl00_phMasterPage_divAlert').text)
-            return "Vaga cadastrada!"
-
-            # back to jobs container - depreciated
-            # driver.back()
-            # sleep(5)
-            # driver.back()
+            status = self.subscribe(driver)    
 
         except Exception as error:
-            return 'Vaga não encontrada!'
+            logging.error(error)
+            try:
+                self.clearCookie()
+                status = self.subscribe(driver)
+            except Exception as err:
+                logging.error(err)
+                return
+
+        return status
 
     def clearCookie(self):
         try:
-            self.driver.find_element_by_id('AllowCookiesButton').click()
+            logging.info(f"[{self.appName}] Limpando cookies...")
+            self.driver.find_element(By.ID, 'AllowCookiesButton').click()
         except Exception:
-            self.driver.find_element_by_id('didomi-notice-agree-button').click()
+            pass
+        
+        try:
+            logging.info(f"[{self.appName}] Removendo popup...")
+            self.driver.find_element(By.ID, 'didomi-notice-agree-button').click()
 
-    def clear_popup(self):
-        self.driver.find_element_by_id('didomi-notice-agree-button').click()
+        except Exception:
+            pass
 
     def quitSearch(self):
-        # output(f'{self.appName} Saindo... volte sempre :)')
+        logging.info(f'{self.appName} Saindo... volte sempre :)')
         self.driver.quit()

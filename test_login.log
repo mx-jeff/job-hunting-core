@@ -1,0 +1,52 @@
+08-Jul-22 13:45:02 - INFO - ====== WebDriver manager ======
+08-Jul-22 13:45:04 - INFO - Current google-chrome version is 103.0.5060
+08-Jul-22 13:45:04 - INFO - Get LATEST chromedriver version for 103.0.5060 google-chrome
+08-Jul-22 13:45:04 - DEBUG - Starting new HTTPS connection (1): chromedriver.storage.googleapis.com:443
+08-Jul-22 13:45:05 - DEBUG - https://chromedriver.storage.googleapis.com:443 "GET /LATEST_RELEASE_103.0.5060 HTTP/1.1" 200 13
+08-Jul-22 13:45:05 - INFO - Driver [C:\Users\JMS\.wdm\drivers\chromedriver\win32\103.0.5060.53\chromedriver.exe] found in cache
+08-Jul-22 13:45:05 - DEBUG - POST http://localhost:50239/session {"capabilities": {"firstMatch": [{}], "alwaysMatch": {"browserName": "chrome", "pageLoadStrategy": "normal", "goog:chromeOptions": {"prefs": {"profile.default_content_setting_values.notifications": 2}, "excludeSwitches": ["enable-logging"], "useAutomationExtension": false, "detach": true, "extensions": [], "args": ["--disable-infobars", "--disable-extensions", "user-agent=Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36", "--disable-blink-features", "--disable-blink-features=AutomationControlled", "user-data-dir=C:\\Users\\JMS\\Documents\\Dev\\Projetos\\job-hunting-core/default\\profile\\wpp"]}}}}
+08-Jul-22 13:45:05 - DEBUG - Starting new HTTP connection (1): localhost:50239
+08-Jul-22 13:45:10 - DEBUG - http://localhost:50239 "POST /session HTTP/1.1" 200 805
+08-Jul-22 13:45:10 - DEBUG - Remote response: status=200 | data={"value":{"capabilities":{"acceptInsecureCerts":false,"browserName":"chrome","browserVersion":"103.0.5060.114","chrome":{"chromedriverVersion":"103.0.5060.53 (a1711811edd74ff1cf2150f36ffa3b0dae40b17f-refs/branch-heads/5060@{#853})","userDataDir":"C:\\Users\\JMS\\Documents\\Dev\\Projetos\\job-hunting-core/default\\profile\\wpp"},"goog:chromeOptions":{"debuggerAddress":"localhost:50242"},"networkConnectionEnabled":false,"pageLoadStrategy":"normal","platformName":"windows","proxy":{},"setWindowRect":true,"strictFileInteractability":false,"timeouts":{"implicit":0,"pageLoad":300000,"script":30000},"unhandledPromptBehavior":"dismiss and notify","webauthn:extension:credBlob":true,"webauthn:extension:largeBlob":true,"webauthn:virtualAuthenticators":true},"sessionId":"e8452f4b337f5fbcdb26ae73fc6b35dd"}} | headers=HTTPHeaderDict({'Content-Length': '805', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:45:10 - DEBUG - Finished Request
+08-Jul-22 13:45:10 - INFO - [Vagas.com] Iniciando...
+08-Jul-22 13:45:10 - DEBUG - POST http://localhost:50239/session/e8452f4b337f5fbcdb26ae73fc6b35dd/url {"url": "https://www.vagas.com.br/meu-perfil"}
+08-Jul-22 13:45:23 - DEBUG - http://localhost:50239 "POST /session/e8452f4b337f5fbcdb26ae73fc6b35dd/url HTTP/1.1" 200 14
+08-Jul-22 13:45:23 - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:45:23 - DEBUG - Finished Request
+08-Jul-22 13:45:23 - INFO - [Vagas.com] A selecionar vaga...
+08-Jul-22 13:45:23 - DEBUG - POST http://localhost:50239/session/e8452f4b337f5fbcdb26ae73fc6b35dd/url {"url": "https://www.vagas.com.br/vagas-de-python-em-sao-paulo"}
+08-Jul-22 13:45:29 - DEBUG - http://localhost:50239 "POST /session/e8452f4b337f5fbcdb26ae73fc6b35dd/url HTTP/1.1" 200 14
+08-Jul-22 13:45:29 - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:45:29 - DEBUG - Finished Request
+08-Jul-22 13:45:29 - INFO - [Vagas.com] Vaga selecionada!
+08-Jul-22 13:45:34 - DEBUG - DELETE http://localhost:50239/session/e8452f4b337f5fbcdb26ae73fc6b35dd {}
+08-Jul-22 13:45:43 - DEBUG - http://localhost:50239 "DELETE /session/e8452f4b337f5fbcdb26ae73fc6b35dd HTTP/1.1" 200 14
+08-Jul-22 13:45:43 - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:45:43 - DEBUG - Finished Request
+08-Jul-22 13:45:45 - INFO - ====== WebDriver manager ======
+08-Jul-22 13:46:20 - INFO - Current google-chrome version is 103.0.5060
+08-Jul-22 13:46:20 - INFO - Get LATEST chromedriver version for 103.0.5060 google-chrome
+08-Jul-22 13:46:20 - DEBUG - Starting new HTTPS connection (1): chromedriver.storage.googleapis.com:443
+08-Jul-22 13:46:20 - DEBUG - https://chromedriver.storage.googleapis.com:443 "GET /LATEST_RELEASE_103.0.5060 HTTP/1.1" 200 13
+08-Jul-22 13:46:20 - INFO - Driver [C:\Users\JMS\.wdm\drivers\chromedriver\win32\103.0.5060.53\chromedriver.exe] found in cache
+08-Jul-22 13:46:24 - DEBUG - POST http://localhost:50300/session {"capabilities": {"firstMatch": [{}], "alwaysMatch": {"browserName": "chrome", "pageLoadStrategy": "normal", "goog:chromeOptions": {"prefs": {"profile.default_content_setting_values.notifications": 2}, "excludeSwitches": ["enable-logging"], "useAutomationExtension": false, "detach": true, "extensions": [], "args": ["--headless", "--no-sandbox", "--disable-dev-shm-usage", "--disable-infobars", "--disable-extensions", "user-agent=Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36", "--disable-blink-features", "--disable-blink-features=AutomationControlled", "user-data-dir=C:\\Users\\JMS\\Documents\\Dev\\Projetos\\job-hunting-core/default\\profile\\wpp"]}}}}
+08-Jul-22 13:46:24 - DEBUG - Starting new HTTP connection (1): localhost:50300
+08-Jul-22 13:46:31 - DEBUG - http://localhost:50300 "POST /session HTTP/1.1" 200 805
+08-Jul-22 13:46:31 - DEBUG - Remote response: status=200 | data={"value":{"capabilities":{"acceptInsecureCerts":false,"browserName":"chrome","browserVersion":"103.0.5060.114","chrome":{"chromedriverVersion":"103.0.5060.53 (a1711811edd74ff1cf2150f36ffa3b0dae40b17f-refs/branch-heads/5060@{#853})","userDataDir":"C:\\Users\\JMS\\Documents\\Dev\\Projetos\\job-hunting-core/default\\profile\\wpp"},"goog:chromeOptions":{"debuggerAddress":"localhost:50304"},"networkConnectionEnabled":false,"pageLoadStrategy":"normal","platformName":"windows","proxy":{},"setWindowRect":true,"strictFileInteractability":false,"timeouts":{"implicit":0,"pageLoad":300000,"script":30000},"unhandledPromptBehavior":"dismiss and notify","webauthn:extension:credBlob":true,"webauthn:extension:largeBlob":true,"webauthn:virtualAuthenticators":true},"sessionId":"b32c29e5a5e27eb3f06ea3dec145f845"}} | headers=HTTPHeaderDict({'Content-Length': '805', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:46:31 - DEBUG - Finished Request
+08-Jul-22 13:46:31 - INFO - [Vagas.com] Iniciando...
+08-Jul-22 13:46:31 - DEBUG - POST http://localhost:50300/session/b32c29e5a5e27eb3f06ea3dec145f845/url {"url": "https://www.vagas.com.br/meu-perfil"}
+08-Jul-22 13:46:36 - DEBUG - http://localhost:50300 "POST /session/b32c29e5a5e27eb3f06ea3dec145f845/url HTTP/1.1" 200 14
+08-Jul-22 13:46:36 - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:46:36 - DEBUG - Finished Request
+08-Jul-22 13:46:36 - INFO - [Vagas.com] A selecionar vaga...
+08-Jul-22 13:46:36 - DEBUG - POST http://localhost:50300/session/b32c29e5a5e27eb3f06ea3dec145f845/url {"url": "https://www.vagas.com.br/vagas-de-python-em-sao-paulo"}
+08-Jul-22 13:46:41 - DEBUG - http://localhost:50300 "POST /session/b32c29e5a5e27eb3f06ea3dec145f845/url HTTP/1.1" 200 14
+08-Jul-22 13:46:41 - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:46:41 - DEBUG - Finished Request
+08-Jul-22 13:46:41 - INFO - [Vagas.com] Vaga selecionada!
+08-Jul-22 13:46:46 - DEBUG - DELETE http://localhost:50300/session/b32c29e5a5e27eb3f06ea3dec145f845 {}
+08-Jul-22 13:46:47 - DEBUG - http://localhost:50300 "DELETE /session/b32c29e5a5e27eb3f06ea3dec145f845 HTTP/1.1" 200 14
+08-Jul-22 13:46:47 - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+08-Jul-22 13:46:47 - DEBUG - Finished Request
