@@ -11,6 +11,8 @@ from jobhunting.utils.sanitize_input import sanitize_input
 from jobhunting.config import setSelenium
 from jobhunting.credentails import vagasUser, vagasPassword
 
+from scrapper_boilerplate import explicit_wait
+
 
 class VagasCom:
     appName = "[Vagas.com]"
@@ -55,15 +57,10 @@ class VagasCom:
     def insertJob(self, job, city="sao-paulo"):
         driver = self.driver
         job = sanitize_input(job)
-        # city = sanitize_input(city)
 
         logging.info(f'{self.appName} A selecionar vaga...')
-        # Insert a select job type and click it!
-        # driver.implicitly_wait(220)
-        # print(f'https://www.vagas.com.br/vagas-de-{job}-em-{city}')
-        # driver.save_screenshot('vagas_before.png')
         driver.get(f'https://www.vagas.com.br/vagas-de-{job}-em-{city}')
-        # driver.save_screenshot('vagas_after.png')
+        explicit_wait(driver, By.TAG_NAME, 'body')
 
         logging.info(f'{self.appName} Vaga selecionada!')
         return True
@@ -114,27 +111,23 @@ class VagasCom:
         logging.info(f'{self.appName} Feito!')
 
     def selectJobs(self):
-        # output(f'{self.appName} Listando Vagas...')
+        logging.debug(f'{self.appName} Listando Vagas...')
         driver = self.driver
-        # driver.save_screenshot('vagas.png')
-        driver.implicitly_wait(220)
-        try:
-            driver.implicitly_wait(0)
-            container = driver.find_element_by_id('pesquisaResultado')
 
-            links = container.find_elements_by_tag_name('a')
+        explicit_wait(driver, By.TAG_NAME, 'body')
+        try:
+            container = driver.find_element(By.ID, 'pesquisaResultado')
+
+            links = container.find_elements(By.TAG_NAME, 'a')
 
             # save all links 
             self.targetLink = [link.get_attribute('href') for link in links]
             
-            # output(f'{self.appName} Feito!')
+            logging.debug(f'{self.appName} Feito!')
         
         except Exception:
             driver.quitSearch()
             raise
-
-        else:
-            driver.implicitly_wait(220)
 
         return True
 
