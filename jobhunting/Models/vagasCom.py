@@ -1,14 +1,11 @@
 from time import sleep
 import logging
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, InvalidSessionIdException
 
 from jobhunting.utils import timer, alert
 from jobhunting.utils.sanitize_input import sanitize_input
-from jobhunting.config import setSelenium
 from jobhunting.credentails import vagasUser, vagasPassword
 
 from scrapper_boilerplate import explicit_wait
@@ -137,29 +134,47 @@ class VagasCom:
             file.write(html)
 
     def subscribeJob(self, link):
-        # output(f'{self.appName} Se inscrevendo na vaga...')
+        logging.info(f'{self.appName} Se inscrevendo na vaga...')
         driver = self.driver
 
         # Job page            
         driver.get(link)
-        
+        explicit_wait(driver, By.TAG_NAME, 'body')
+
         try:
-            driver.find_element_by_name('bt-candidatura').click()
+            try:
+                job_imconpatility = driver.find_element(By.CSS_SELECTOR, 'div.job-incompatibility.is-expanded').text
+                logging.info(f'{self.appName} Vaga inválida: {job_imconpatility}')
+                return
             
+            except NoSuchElementException:
+                pass
+
+            driver.find_element(By.NAME, 'bt-candidatura').click()
+            
+            "https://www.vagas.com.br/candidatura/confirmada?v=2402072"
+
+            if "confirmada" in driver.current_url:
+                logging.info(f'{self.appName} Inscrição realizada com sucesso!')
+                return True
+
             try:
                 timer()
                 alert(driver)
-                driver.find_element_by_xpath('//*[@id="LtC"]/td[1]/table/tbody/tr/td[1]/a').click()
-                return 'Inscrição realizada com sucesso :) '
+                driver.find_element(By.XPATH, '//*[@id="LtC"]/td[1]/table/tbody/tr/td[1]/a').click()
+                return True
 
-            except:
-                return 'Inscrição realizada com sucesso :) '
+            except Exception as e:
+                logging.error(e)
+                return False
             
-        except NoSuchElementException:
-            return f'Inscrição realizada anteriormente ;) '
+        except NoSuchElementException as e:
+            logging.error(e)
+            return False
 
         except Exception as error: 
-            return f'Erro na inscrição :( \nError: {error}'
+            logging.error(f"{self.appName} Error: {error}")
+            return
 
     def quitSearch(self):
         logging.info(f'{self.appName} Saindo... volte sempre :)')

@@ -1,5 +1,8 @@
 import sys
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 def table(href, text):
     tamanho = len(href) + 4
@@ -15,9 +18,15 @@ def timer(secs=5):
 
     sleep(secs)
 
-def alert(browser):
-    alert = browser.switch_to.alert
-    alert.accept()    
+
+def alert(driver, timeout=5):
+    try:
+        WebDriverWait(driver, timeout).until(EC.alert_is_present())
+        driver.switch_to.alert.accept()   
+    
+    except TimeoutError:
+        pass
+
 
 def remove_duplicates_from_list(x:list):
     return list(dict.fromkeys(x))
