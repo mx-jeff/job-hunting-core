@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 # This call to setup() does all the work
 setup(
     name="job-hunting",
-    version="0.2.8",
+    version="0.2.9",
     description="Package that automate selection and subscription of jobs",
     long_description_content_type="text/markdown",
     long_description=open('README.md', encoding="utf-8").read(),
@@ -22,7 +22,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Operating System :: OS Independent"
     ],
-    packages=['jobhunting', 'jobhunting.Models', 'jobhunting.utils'],
+    packages=['jobhunting', 'jobhunting.Models', 'jobhunting.utils', 'jobhunting.controllers'],
     include_package_data=True,
-    install_requires=["selenium", 'python-dotenv']
+    install_requires=["selenium", 'python-dotenv', "scrapper-boilerplate"]
 )

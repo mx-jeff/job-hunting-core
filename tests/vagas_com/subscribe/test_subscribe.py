@@ -20,15 +20,13 @@ class TestSubscribe(unittest.TestCase):
 
     def test_subscribe(self):
         self.vagas.login(self.user, self.password)
-        # with open('tests/vagas_com/mock/jobs.txt', 'r') as f:
-        #     jobs = f.readlines()
 
         success = 0
         fail = 0
         # for job in jobs:
         status = self.vagas.subscribeJob("https://www.vagas.com.br/vagas/v2398620/developer-front-end")
         sleep(10)
-        if status == 1:
+        if status:
             success += 1
         else:
             fail += 1

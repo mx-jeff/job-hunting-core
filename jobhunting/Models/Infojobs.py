@@ -94,11 +94,12 @@ class Infojobs:
         Get links from container of jobs to array and clicks one-by-one
         :return: none
         """
-        logging.debug(f'{self.appName} Selecionando vagas disponiveis...')
+        logging.info(f'{self.appName} Selecionando vagas disponiveis...')
 
         job_offer = []
 
-        for _ in range(0, 21):
+        for i in range(0, 1):
+            logging.info(f'{self.appName} Buscando vagas: {i + 1}')
             try:
                 #jobs container
                 self.jobsContainer = explicit_wait(self.driver, By.ID, "filterSideBar") # self.driver.find_element(By.ID, 'filterSideBar')
@@ -116,8 +117,8 @@ class Infojobs:
                 self.driver.find_element(By.CSS_SELECTOR, '[title="Próxima"]').click()
 
             except Exception as error:
-                # output(error)
-                break        
+                logging.error(error)
+                continue       
 
         job_offer = remove_duplicates_from_list(job_offer)
 
@@ -136,6 +137,7 @@ class Infojobs:
         subscribe = explicit_wait(driver , By.CSS_SELECTOR, '.btn.btn-primary.btn-block.js_btApplyVacancy')
         subscribe.click()
         # subscribe or not?
+        print(self.driver.current_url)
         status = getStatusJob(self.driver.current_url)
         
         if status == 0:
@@ -151,6 +153,7 @@ class Infojobs:
         status = False
         driver = self.driver
         driver.get(link)
+        logging.info(driver.current_url)
         explicit_wait(driver, By.TAG_NAME, 'body')
         
         try:
@@ -163,20 +166,19 @@ class Infojobs:
                 self.clearCookie()
                 status = self.subscribe(driver)
             except Exception as err:
-                logging.error(err)
                 return
 
         return status
 
     def clearCookie(self):
         try:
-            logging.info(f"[{self.appName}] Limpando cookies...")
+            logging.info(f"{self.appName} Limpando cookies...")
             self.driver.find_element(By.ID, 'AllowCookiesButton').click()
         except Exception:
             pass
         
         try:
-            logging.info(f"[{self.appName}] Removendo popup...")
+            logging.info(f"{self.appName} Removendo popup...")
             self.driver.find_element(By.ID, 'didomi-notice-agree-button').click()
 
         except Exception:

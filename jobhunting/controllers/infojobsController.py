@@ -11,6 +11,7 @@ def searchInfojob(jobTarget, user, password, driver):
     :login: infojobs user to login
     :password: password to login
     """
+        
     jobs = Infojobs(driver)
     site_job = jobs.appName
     job_type = jobTarget
@@ -37,20 +38,27 @@ def searchInfojob(jobTarget, user, password, driver):
         print(f"{site_job} Se inscrevendo nas vagas...")
         
         for index, target in enumerate(jobs.jobsLink):
-            if target.startswith("https://") or target.startswith("http://"):
-                status = jobs.subscribeJob(target)
-                if status:
-                    print(f'{jobs.appName} Vaga inscrita com sucesso!')
-                    success += 1
-                else:
-                    print(f'{jobs.appName} Erro de inscrição!')
-                    fail += 1
-        
+            try:
+                print(f'{site_job} Inscrevendo na vaga {index+1} de {len(jobs.jobsLink)}')
+                if target.startswith("https://") or target.startswith("http://"):
+                    status = jobs.subscribeJob(target)
+                    if status:
+                        print(f'{jobs.appName} Vaga inscrita com sucesso!')
+                        success += 1
+                    else:
+                        print(f'{jobs.appName} Erro de inscrição!')
+                        fail += 1
+            
+            except KeyboardInterrupt:
+                print(f'{site_job} Interrompendo...')
+                jobs.quitSearch()
+                break
+
         print(f'{jobs.appName} Vagas inscritas com sucesso: {success}')
         print(f'{jobs.appName} Vagas com erro de inscrição: {fail}')
 
     except Exception as error:
-        jobs.quitSearch()
+        # jobs.quitSearch()
         print(f"{jobs.appName} Algum problema ocorreu e/ou as inforamções estão erradas!")
         print(f"{jobs.appName} Erro {error}, contate o adminstrador do sistema")    
 

@@ -1,9 +1,11 @@
+from asyncio.log import logger
 from jobhunting.Models.vagasCom import VagasCom
+import logging
 
 
-def searchVagasCom(targetJob, vagasUser, vagasPassword, headless):
-    vagas = VagasCom(chromedriver_path="C:\Selenium\chromedriver.exe", headless=headless)
-    targetJob = "python"
+def searchVagasCom(targetJob, vagasUser, vagasPassword, driver):
+
+    vagas = VagasCom(driver)
     job_site = vagas.appName
     
     print(f'{job_site} Iniciando...')
@@ -20,14 +22,10 @@ def searchVagasCom(targetJob, vagasUser, vagasPassword, headless):
         vagas.insertJob(targetJob)
         print(f'{job_site} Vaga selecionada!')
 
-        # print(f'{job_site} A ajustar opções...')
-        # vagas.searchOptions()
-        # print(f'{job_site} Feito!')
-
         print(f'{job_site} Listando Vagas...')
         vagas.selectJobs()
         print(f'{job_site} Feito!')
-        print(f"{len(vagas.targetLink)} vagas encontradas!")
+        print(f"{job_site} {len(vagas.targetLink)} vagas encontradas!")
 
         success = 0
         fail = 0
@@ -35,31 +33,34 @@ def searchVagasCom(targetJob, vagasUser, vagasPassword, headless):
         
         try:
             for index, target in enumerate(vagas.targetLink):
-                if target.startswith("https://") or target.startswith("http://"):
-                    status = vagas.subscribeJob(target)
-                    if status == "Vaga cadastrada!":
-                        success += 1
+                try:
+                    print(f'{job_site} Inscrevendo na vaga {index+1} de {len(vagas.targetLink)}\nVaga: {target}')
+                    if target.startswith("https://") or target.startswith("http://"):
+                        status = vagas.subscribeJob(target)
+                        if status:
+                            success += 1
 
-                    else:
-                        fail += 1
+                        else:
+                            fail += 1
 
-                    print(f"{job_site} {index + 1} vaga, status: {status}")
+                        print(f"{job_site} {index + 1} vaga, status: {'cadastrada' if status else 'já cadastrada ou erro de inscrição'}")
+                        
+                except KeyboardInterrupt:
+                    print(f'{job_site} Interrompido!')
+                    break
         
-        except Exception:  
+        except Exception:
+            # raise  
             print(f"{job_site} erro ao se inscrever!")
-        
-        finally:
-            vagas.quitSearch()
 
         print(f'Vagas inscritas {success}')
         print(f'Vagas ja inscritas anteriomente ou requer preenchimento adicional: {fail}')
 
     except Exception as error:
+        logging.error(error)
         print("Algum problema ocorreu e/ou as informações estão erradas!")
-        vagas.quitSearch()
         raise
 
     except KeyboardInterrupt:
-        print('Saindo, volte sempre!')
-        vagas.quitSearch()
-        
+        print('Saindo, volte sempre!')        
+        return

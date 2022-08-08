@@ -3,6 +3,7 @@ import sys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 
 def table(href, text):
     tamanho = len(href) + 4
@@ -24,7 +25,7 @@ def alert(driver, timeout=5):
         WebDriverWait(driver, timeout).until(EC.alert_is_present())
         driver.switch_to.alert.accept()   
     
-    except TimeoutError:
+    except TimeoutException:
         pass
 
 

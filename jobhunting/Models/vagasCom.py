@@ -39,12 +39,10 @@ class VagasCom:
             if self.driver.current_url == login_url:
                 logging.info(f'{self.appName} Login inválido ou campos errados!')
                 # check if this message was sent
-                self.quitSearch()
-                return False
+                return
 
         except Exception as error:
             logging.info(f"{self.appName} Error: {error}")
-            self.quitSearch()
             return
 
         logging.info(f'{self.appName} Logado com sucesso')
@@ -111,7 +109,7 @@ class VagasCom:
         logging.debug(f'{self.appName} Listando Vagas...')
         driver = self.driver
 
-        explicit_wait(driver, By.TAG_NAME, 'body')
+        explicit_wait(driver, By.TAG_NAME, 'h1')
         try:
             container = driver.find_element(By.ID, 'pesquisaResultado')
 
@@ -123,7 +121,6 @@ class VagasCom:
             logging.debug(f'{self.appName} Feito!')
         
         except Exception:
-            driver.quitSearch()
             raise
 
         return True
@@ -139,42 +136,57 @@ class VagasCom:
 
         # Job page            
         driver.get(link)
-        explicit_wait(driver, By.TAG_NAME, 'body')
+        timer()
+        explicit_wait(driver, By.TAG_NAME, 'h1')
+        title = driver.find_element(By.TAG_NAME, 'h1').text
+        logging.info(link)
+        logging.info(title)
 
         try:
             try:
                 job_imconpatility = driver.find_element(By.CSS_SELECTOR, 'div.job-incompatibility.is-expanded').text
                 logging.info(f'{self.appName} Vaga inválida: {job_imconpatility}')
-                return
+                return False
             
             except NoSuchElementException:
                 pass
 
-            driver.find_element(By.NAME, 'bt-candidatura').click()
+            try:
+                driver.find_element(By.NAME, 'bt-candidatura').click()
             
-            "https://www.vagas.com.br/candidatura/confirmada?v=2402072"
+            except NoSuchElementException:
+                try:
+                    logging.info(f'{self.appName} Tentando novamente...')
+                    try:
+                        driver.find_element(By.XPATH, "//*[contains(text(), 'Já me candidatei')]").click()        
+
+                    except NoSuchElementException:
+                        driver.find_element(By.XPATH, "//*[contains(text(), 'Candidate-se novamente')]").click() 
+
+                except NoSuchElementException:
+                    logging.info(f'{self.appName} Não foi possível se inscrever...')
+                    raise
+                    return False
+
+            alert(driver)
+            timer()
 
             if "confirmada" in driver.current_url:
                 logging.info(f'{self.appName} Inscrição realizada com sucesso!')
                 return True
 
             try:
-                timer()
-                alert(driver)
                 driver.find_element(By.XPATH, '//*[@id="LtC"]/td[1]/table/tbody/tr/td[1]/a').click()
                 return True
 
             except Exception as e:
                 logging.error(e)
                 return False
-            
-        except NoSuchElementException as e:
-            logging.error(e)
-            return False
-
+                
         except Exception as error: 
             logging.error(f"{self.appName} Error: {error}")
-            return
+            raise
+            return False
 
     def quitSearch(self):
         logging.info(f'{self.appName} Saindo... volte sempre :)')
