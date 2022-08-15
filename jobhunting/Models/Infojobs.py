@@ -1,4 +1,3 @@
-from cmath import log
 import logging
 from time import sleep
 
@@ -8,7 +7,9 @@ from selenium.webdriver.common.keys import Keys
 from jobhunting.credentails import user, password
 from jobhunting.utils import remove_duplicates_from_list
 from jobhunting.utils.sanitize import getStatusJob
-from scrapper_boilerplate import explicit_wait
+from jobhunting.const import DEBUG, QUANTITY_OF_PAGES
+from scrapper_boilerplate import explicit_wait, load_code
+from uuid import uuid4
 
 
 class Infojobs:
@@ -98,18 +99,20 @@ class Infojobs:
 
         job_offer = []
 
-        for i in range(0, 1):
+        for i in range(0, QUANTITY_OF_PAGES):
             logging.info(f'{self.appName} Buscando vagas: {i + 1}')
             try:
                 #jobs container
-                self.jobsContainer = explicit_wait(self.driver, By.ID, "filterSideBar") # self.driver.find_element(By.ID, 'filterSideBar')
-                
-                # get links
-                for items in self.jobsContainer.find_elements(By.TAG_NAME, 'div'):
-                    try:
-                        job_link = items.find_element(By.CSS_SELECTOR, 'a.text-decoration-none').get_attribute('href')
+                self.jobsContainer = explicit_wait(self.driver, By.ID, "filterSideBar") # self.driver.find_element(By.ID, 'filterSideBar'
+                code = load_code(self.jobsContainer)
 
-                    except NoSuchElementException:
+                # get links
+                for items in code.find_all('div'): #self.jobsContainer.find_elements(By.TAG_NAME, 'div'):
+                    try:
+                        job_link = items.select_one("h2").parent #find_element(By.CSS_SELECTOR, 'a.text-decoration-none').get_attribute('href')
+                        job_link = "https://www.infojobs.com.br" + job_link['href']
+
+                    except (NoSuchElementException, AttributeError):
                         continue
                     
                     job_offer.append(job_link)
@@ -117,7 +120,7 @@ class Infojobs:
                 self.driver.find_element(By.CSS_SELECTOR, '[title="Próxima"]').click()
 
             except Exception as error:
-                logging.error(error)
+                logging.error(error) if DEBUG else logging.error(f'{self.appName} Erro ao buscar vagas')
                 continue       
 
         job_offer = remove_duplicates_from_list(job_offer)
@@ -137,7 +140,7 @@ class Infojobs:
         subscribe = explicit_wait(driver , By.CSS_SELECTOR, '.btn.btn-primary.btn-block.js_btApplyVacancy')
         subscribe.click()
         # subscribe or not?
-        print(self.driver.current_url)
+        logging.info(self.driver.current_url)
         status = getStatusJob(self.driver.current_url)
         
         if status == 0:
@@ -145,6 +148,7 @@ class Infojobs:
             return True
         else:
             logging.info(f'{self.appName} Erro de cadastro!')
+            driver.save_screenshot(f'screenshot/{self.appName}-{uuid4()}.png') if DEBUG else None
             return
 
     def subscribeJob(self, link):
@@ -161,11 +165,12 @@ class Infojobs:
             status = self.subscribe(driver)    
 
         except Exception as error:
-            logging.error(error)
+            logging.error(error) if DEBUG else None
             try:
                 self.clearCookie()
                 status = self.subscribe(driver)
             except Exception as err:
+                logging.error(err) if DEBUG else None
                 return
 
         return status

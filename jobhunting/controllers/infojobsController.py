@@ -58,10 +58,8 @@ def searchInfojob(jobTarget, user, password, driver):
         print(f'{jobs.appName} Vagas com erro de inscrição: {fail}')
 
     except Exception as error:
-        # jobs.quitSearch()
         print(f"{jobs.appName} Algum problema ocorreu e/ou as inforamções estão erradas!")
         print(f"{jobs.appName} Erro {error}, contate o adminstrador do sistema")    
 
     except KeyboardInterrupt:
         print('Saindo, volte sempre!')
-        jobs.quitSearch()

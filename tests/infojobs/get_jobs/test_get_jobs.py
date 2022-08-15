@@ -14,6 +14,7 @@ class TestLogin(unittest.TestCase):
         infojobs = Infojobs(self.driver)
         self.driver.get("https://www.infojobs.com.br/empregos.aspx?Palabra=robo&Provincia=64")
         infojobs.getJob()
+        print(infojobs.jobsLink)
         print(len(infojobs.jobsLink))
         self.assertGreater(len(infojobs.jobsLink), 0, msg="Done!")
 
@@ -22,6 +23,7 @@ class TestLogin(unittest.TestCase):
         infojobs = Infojobs(self.driver)
         self.driver.get("https://www.infojobs.com.br/empregos.aspx?Palabra=robo&Provincia=64")
         infojobs.getJob()
+        print(infojobs.jobsLink)
         print(len(infojobs.jobsLink))
         self.assertGreater(len(infojobs.jobsLink), 0, msg="Done!")
 

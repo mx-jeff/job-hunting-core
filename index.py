@@ -1,3 +1,4 @@
+from tkinter import TRUE
 from sqlalchemy import true
 from jobhunting.credentails import vagasPassword, vagasUser, user, password
 from jobhunting.controllers.vagasComController import searchVagasCom
@@ -18,7 +19,7 @@ def main():
     with setSelenium(headless=True, remote_webdriver=True, profile=False) as driver:
     # driver = setSelenium(headless=False, remote_webdriver=True, profile=False)
         # searchVagasCom('javascript', vagasUser, vagasPassword, driver)
-        driver.set_window_size(1200, 800)
+        driver.set_window_size(1900, 1200)
         searchInfojob('php', user, password, driver)
         
 
