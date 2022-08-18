@@ -178,8 +178,8 @@ class Infojobs:
     def clearCookie(self):
         try:
             logging.info(f"{self.appName} Limpando cookies...")
-            # self.driver.find_element(By.ID, 'AllowCookiesButton').click()
-            explicit_wait(self.driver, By.ID, 'AllowCookiesButton', timeout=30).click()
+            self.driver.find_element(By.ID, 'AllowCookiesButton').click()
+            explicit_wait(self.driver, By.ID, 'AllowCookiesButton').click()
         except Exception:
             pass
         
