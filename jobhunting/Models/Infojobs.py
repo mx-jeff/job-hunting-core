@@ -126,7 +126,7 @@ class Infojobs:
                 self.driver.find_element(By.CSS_SELECTOR, '[title="Próxima"]').click()
 
             except Exception as error:
-                logging.error(error) if DEBUG else logging.error(f'{self.appName} Erro ao buscar vagas')
+                logging.error(error) if DEBUG else logging.info(f'{self.appName} Erro ao buscar vagas')
                 continue       
 
         job_offer = remove_duplicates_from_list(job_offer)

@@ -15,3 +15,4 @@
     - bugs:
         - [x] skiping vagas page in list of links
         - [x] alert breakdown
+        - [ ] view search jobs error
