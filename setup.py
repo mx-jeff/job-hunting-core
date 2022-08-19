@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 # This call to setup() does all the work
 setup(
     name="job-hunting",
-    version="0.2.14",
+    version="0.2.15",
     description="Package that automate selection and subscription of jobs",
     long_description_content_type="text/markdown",
     long_description=open('README.md', encoding="utf-8").read(),

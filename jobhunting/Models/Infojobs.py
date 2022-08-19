@@ -27,24 +27,30 @@ class Infojobs:
         login_url = 'https://login.infojobs.com.br/Account/Login'
         logging.info(f'{self.appName} Tentando logar...')        
         self.driver.get(login_url)
-
         explicit_wait(self.driver, By.TAG_NAME, 'body')
-        if self.driver.current_url != login_url:
-            logging.info(f'{self.appName} Já está logado!')
-            return
 
-        logging.info(f"{self.appName} Passando verificação de cookies")
-        explicit_wait(self.driver, By.TAG_NAME, 'body')
-        self.clearCookie()
+        try:
+            if self.driver.current_url != login_url:
+                logging.info(f'{self.appName} Já está logado!')
+                return
 
-        self.inputForm = self.driver.find_element(By.XPATH, '//*[@id="Username"]')
-        self.inputForm.send_keys(login or user)
+            logging.info(f"{self.appName} Passando verificação de cookies")
+            explicit_wait(self.driver, By.TAG_NAME, 'body')
+            self.clearCookie()
 
-        self.passwordForm = self.driver.find_element(By.XPATH, '//*[@id="Password"]')
-        self.passwordForm.send_keys(user_password or password)
+            self.inputForm = self.driver.find_element(By.XPATH, '//*[@id="Username"]')
+            self.inputForm.send_keys(login or user)
 
-        self.submitButton = self.driver.find_element(By.CSS_SELECTOR, '[value="login"]')
-        self.submitButton.click()
+            self.passwordForm = self.driver.find_element(By.XPATH, '//*[@id="Password"]')
+            self.passwordForm.send_keys(user_password or password)
+
+            self.submitButton = self.driver.find_element(By.CSS_SELECTOR, '[value="login"]')
+            self.submitButton.click()
+
+        except ElementClickInterceptedException:
+            logging.error(f'{self.appName} Tentando novamente!')
+            self.clearCookie()
+            self.login(login, user_password)
 
         return True
 
@@ -177,15 +183,15 @@ class Infojobs:
 
     def clearCookie(self):
         try:
-            logging.info(f"{self.appName} Limpando cookies...")
-            self.driver.find_element(By.ID, 'AllowCookiesButton').click()
-            explicit_wait(self.driver, By.ID, 'AllowCookiesButton').click()
+            logging.info(f"{self.appName} Removendo popup...")
+            explicit_wait(self.driver, By.ID, 'didomi-notice-agree-button').click()
+
         except Exception:
             pass
         
         try:
-            logging.info(f"{self.appName} Removendo popup...")
-            self.driver.find_element(By.ID, 'didomi-notice-agree-button').click()
+            logging.info(f"{self.appName} Limpando cookies...")
+            explicit_wait(self.driver, By.ID, 'AllowCookiesButton').click()
 
         except Exception:
             pass
