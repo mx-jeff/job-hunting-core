@@ -131,9 +131,9 @@ class Infojobs:
 
                     self.driver.find_element(By.CSS_SELECTOR, '[title="Próxima"]').click()
 
-                except Exception as error:
+                except Exception as err:
                     if DEBUG: 
-                        logging.error(error) 
+                        logging.error(err) 
                     else: 
                         send_error_to_telegram(error=err, driver=self.driver, title=self.appName, telegram=self.telegram)
                         logging.info(f'{self.appName} Erro ao buscar vagas')
