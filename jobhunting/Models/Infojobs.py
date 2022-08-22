@@ -1,5 +1,8 @@
+import os
 import logging
 from time import sleep
+from uuid import uuid4
+from dotenv import load_dotenv
 
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException,  ElementNotInteractableException
 from selenium.webdriver.common.by import By
@@ -8,16 +11,18 @@ from jobhunting.credentails import user, password
 from jobhunting.utils import remove_duplicates_from_list
 from jobhunting.utils.sanitize import getStatusJob
 from jobhunting.const import DEBUG, QUANTITY_OF_PAGES
-from scrapper_boilerplate import explicit_wait, load_code
-from uuid import uuid4
+from scrapper_boilerplate import explicit_wait, load_code, TelegramBot
+from jobhunting.utils.errors import send_error_to_telegram
 
 
 class Infojobs:
     appName = '[Infojobs]'
     jobsLink = []
 
-    def __init__(self, driver):
+    def __init__(self, driver, access_token="", chat_id=""):
         self.driver = driver
+        load_dotenv()
+        self.telegram = TelegramBot(auth_token=access_token, chat_id=chat_id)        
 
     def login(self, login, user_password):
         """
@@ -103,39 +108,48 @@ class Infojobs:
         """
         logging.info(f'{self.appName} Selecionando vagas disponiveis...')
 
-        job_offer = []
+        try:
+            job_offer = []
 
-        for i in range(0, QUANTITY_OF_PAGES):
-            logging.info(f'{self.appName} Buscando vagas: {i + 1}')
-            try:
-                #jobs container
-                self.jobsContainer = explicit_wait(self.driver, By.ID, "filterSideBar") # self.driver.find_element(By.ID, 'filterSideBar'
-                code = load_code(self.jobsContainer)
+            for i in range(0, QUANTITY_OF_PAGES):
+                logging.info(f'{self.appName} Buscando vagas: {i + 1}')
+                try:
+                    #jobs container
+                    self.jobsContainer = explicit_wait(self.driver, By.ID, "filterSideBar") # self.driver.find_element(By.ID, 'filterSideBar'
+                    code = load_code(self.jobsContainer)
 
-                # get links
-                for items in code.find_all('div'): #self.jobsContainer.find_elements(By.TAG_NAME, 'div'):
-                    try:
-                        job_link = items.select_one("h2").parent #find_element(By.CSS_SELECTOR, 'a.text-decoration-none').get_attribute('href')
-                        job_link = "https://www.infojobs.com.br" + job_link['href']
+                    # get links
+                    for items in code.find_all('div'): #self.jobsContainer.find_elements(By.TAG_NAME, 'div'):
+                        try:
+                            job_link = items.select_one("h2").parent #find_element(By.CSS_SELECTOR, 'a.text-decoration-none').get_attribute('href')
+                            job_link = "https://www.infojobs.com.br" + job_link['href']
 
-                    except (NoSuchElementException, AttributeError):
-                        continue
+                        except (NoSuchElementException, AttributeError):
+                            continue
+                        
+                        job_offer.append(job_link)
+
+                    self.driver.find_element(By.CSS_SELECTOR, '[title="Próxima"]').click()
+
+                except Exception as error:
+                    if DEBUG: 
+                        logging.error(error) 
+                    else: 
+                        send_error_to_telegram(error=err, driver=self.driver, title=self.appName, telegram=self.telegram)
+                        logging.info(f'{self.appName} Erro ao buscar vagas')
                     
-                    job_offer.append(job_link)
+                    continue       
 
-                self.driver.find_element(By.CSS_SELECTOR, '[title="Próxima"]').click()
+            job_offer = remove_duplicates_from_list(job_offer)
 
-            except Exception as error:
-                logging.error(error) if DEBUG else logging.info(f'{self.appName} Erro ao buscar vagas')
-                continue       
+            if len(job_offer) == 0:
+                print(f'{self.appName} Erro ao pegar vagas!')
+                return
 
-        job_offer = remove_duplicates_from_list(job_offer)
+            self.jobsLink = [link for link in job_offer]
 
-        if len(job_offer) == 0:
-            print(f'{self.appName} Erro ao pegar vagas!')
-            return
-
-        self.jobsLink = [link for link in job_offer]
+        except Exception as err:
+            send_error_to_telegram(error=err, driver=self.driver, title=self.appName, telegram=self.telegram)
 
     def subscribe(self, driver):
         """
